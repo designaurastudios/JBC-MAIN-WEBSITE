@@ -1,0 +1,46 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Contact form submissions: Public write-only, Admin read/write
+    match /contactMessages/{messageId} {
+      allow create: if request.resource.data.fullName is string
+                    && request.resource.data.phone is string
+                    && request.resource.data.email is string
+                    && request.resource.data.message is string;
+      allow read, update, delete: if request.auth != null;
+    }
+
+    // Quote requests: Public write-only, Admin read/write
+    match /quoteRequests/{quoteId} {
+      allow create: if request.resource.data.fullName is string
+                    && request.resource.data.phone is string
+                    && request.resource.data.email is string
+                    && request.resource.data.projectDescription is string;
+      allow read, update, delete: if request.auth != null;
+    }
+
+    // Projects: Public read, Admin write
+    match /projects/{projectId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Testimonials: Public read, Admin write
+    match /testimonials/{testimonialId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Settings & Company Info: Public read, Admin write
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Default catch-all: Admin read/write
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
